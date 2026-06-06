@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bono Matemáticas Discretas I - Calculadora Rigurosa</title>
+    <style>
+        :root {
+            --primary: #4C09C8;
+            --background: #121212;
+            --surface: rgba(30, 30, 30, 0.92);
+            --text: #e0e0e0;
+            --result-bg: rgba(76, 9, 200, 0.15);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            background-image: url('CocoBodyopenmouthLogo2.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: var(--surface);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            border-left: 6px solid var(--primary);
+            backdrop-filter: blur(5px);
+        }
+        h1 { color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); text-align: center;}
+        h2 { color: #b388ff; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        label { font-weight: bold; display: block; margin-top: 15px; color: #ccc; }
+        input, select, button {
+            width: 100%; padding: 12px; margin-top: 8px;
+            border: 1px solid #555; border-radius: 6px; box-sizing: border-box;
+            background-color: #2a2a2a; color: white; font-size: 16px;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary); }
+        button {
+            background-color: var(--primary);
+            color: white; font-weight: bold; cursor: pointer; border: none; margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #6a2bea; }
+        .result {
+            margin-top: 20px; padding: 20px; background-color: var(--result-bg);
+            border-radius: 6px; word-wrap: break-word; border: 1px solid var(--primary);
+            line-height: 1.6;
+        }
+        .step { margin-bottom: 10px; }
+        .highlight { color: #b388ff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Solucionador Analítico de Conteo</h1>
+
+    <div class="card" id="prob4">
+        <h2>Problema 4: Sistema de conteo de contraseñas</h2>
+        <label>Longitud de la contraseña (n):</label>
+        <input type="number" id="p4-n" min="1" value="4">
+        <label>Tamaño del alfabeto permitido (k):</label>
+        <input type="number" id="p4-alpha" min="1" value="26">
+        <label>¿Se permite repetición de caracteres?</label>
+        <select id="p4-rep">
+            <option value="yes">Sí</option>
+            <option value="no">No</option>
+        </select>
+        <button onclick="solveProblem4()">Calcular y Analizar</button>
+        <div id="res-p4" class="result">El desglose matemático aparecerá aquí...</div>
+    </div>
+
+    <div class="card" id="prob7">
+        <h2>Problema 7: Distribución de objetos en cajas</h2>
+        <label>Número de objetos idénticos (n):</label>
+        <input type="number" id="p7-n" min="1" value="5">
+        <label>Número de cajas distintas (k):</label>
+        <input type="number" id="p7-k" min="1" value="3">
+        <label>Restricción de cajas:</label>
+        <select id="p7-empty">
+            <option value="yes">Se permiten cajas vacías</option>
+            <option value="no">Toda caja debe tener al menos 1 objeto</option>
+        </select>
+        <button onclick="solveProblem7()">Calcular y Analizar</button>
+        <div id="res-p7" class="result">El desglose matemático aparecerá aquí...</div>
+    </div>
+
+    <div class="card" id="prob8">
+        <h2>Problema 8: Caminos mínimos en una grilla</h2>
+        <label>Coordenada destino X (a):</label>
+        <input type="number" id="p8-a" min="0" value="3">
+        <label>Coordenada destino Y (b):</label>
+        <input type="number" id="p8-b" min="0" value="3">
+        <label>Punto bloqueado X (Opcional):</label>
+        <input type="number" id="p8-bx" min="0">
+        <label>Punto bloqueado Y (Opcional):</label>
+        <input type="number" id="p8-by" min="0">
+        <button onclick="solveProblem8()">Calcular y Analizar</button>
+        <div id="res-p8" class="result">El desglose matemático aparecerá aquí...</div>
+    </div>
+</div>
+
+<script>
+    /* LIBRERÍA MATEMÁTICA BASE CON BIGINT */
+    function factorial(n) {
+        if (n < 0n) return 0n; 
+        if (n === 0n || n === 1n) return 1n;
+        let result = 1n;
+        for (let i = 2n; i <= n; i++) { result *= i; }
+        return result;
+    }
+
+    function combinations(n, k) {
+        if (k > n || k < 0n || n < 0n) return 0n;
+        return factorial(n) / (factorial(k) * factorial(n - k));
+    }
+
+    function permutations(n, k) {
+        if (k > n || k < 0n || n < 0n) return 0n;
+        return factorial(n) / factorial(n - k);
+    }
+
+    /* LÓGICA RIGUROSA DE PROBLEMAS */
+
+    function solveProblem4() {
+        const n = BigInt(document.getElementById('p4-n').value);
+        const k = BigInt(document.getElementById('p4-alpha').value);
+        const allowRep = document.getElementById('p4-rep').value === 'yes';
+        const resDiv = document.getElementById('res-p4');
+
+        if (n <= 0n || k <= 0n) {
+            resDiv.innerHTML = "<span style='color: #ff5252;'>Error: Los valores n y k deben ser enteros positivos.</span>";
+            return;
+        }
+
+        let html = `<h3>Análisis Paso a Paso</h3>`;
+        html += `<div class='step'><strong>Modelo:</strong> Formar cadenas de longitud n=${n} usando un alfabeto de k=${k} símbolos.</div>`;
+
+        if (allowRep) {
+            let result = k ** n;
+            html += `<div class='step'><strong>Fundamento:</strong> Por el principio de la multiplicación, dado que permitimos repetición, tenemos ${k} opciones para el primer carácter, ${k} para el segundo, y así sucesivamente hasta la posición ${n}.</div>`;
+            html += `<div class='step'><strong>Fórmula:</strong> k^n = ${k}^${n}</div>`;
+            html += `<div class='step highlight'>Resultado Final: ${result} contraseñas posibles.</div>`;
+        } else {
+            if (n > k) {
+                html += `<div class='step' style='color: #ff5252;'><strong>Validación de Regla de las Casillas:</strong> No es posible crear una contraseña sin repetir caracteres si la longitud de la contraseña (${n}) es mayor que la cantidad de caracteres disponibles en el alfabeto (${k}). El Principio de las Casillas (Palomar) demuestra que al menos un carácter tendría que repetirse.</div>`;
+            } else {
+                let num = factorial(k);
+                let den = factorial(k - n);
+                let result = num / den;
+                html += `<div class='step'><strong>Fundamento:</strong> Como el orden importa y NO hay repetición, estamos ante una Permutación sin repetición P(k, n). Para el primer lugar hay ${k} opciones, para el segundo ${k}-1, etc.</div>`;
+                html += `<div class='step'><strong>Fórmula:</strong> P(${k}, ${n}) = ${k}! / (${k} - ${n})!</div>`;
+                html += `<div class='step'><strong>Desarrollo:</strong><br>Numerador (${k}!): ${num}<br>Denominador (${k-n}!): ${den}</div>`;
+                html += `<div class='step highlight'>Resultado Final: ${result} contraseñas posibles.</div>`;
+            }
+        }
+        resDiv.innerHTML = html;
+    }
+
+    function solveProblem7() {
+        const n = BigInt(document.getElementById('p7-n').value);
+        const k = BigInt(document.getElementById('p7-k').value);
+        const allowEmpty = document.getElementById('p7-empty').value === 'yes';
+        const resDiv = document.getElementById('res-p7');
+
+        if (n <= 0n || k <= 0n) {
+            resDiv.innerHTML = "<span style='color: #ff5252;'>Error: Los objetos y cajas deben ser enteros positivos mayores a cero.</span>";
+            return;
+        }
+
+        let html = `<h3>Análisis Paso a Paso</h3>`;
+        html += `<div class='step'><strong>Modelo Base:</strong> Distribuir n=${n} objetos idénticos en k=${k} cajas distintas. Esto es equivalente a encontrar el número de soluciones enteras a la ecuación x1 + x2 + ... + x${k} = ${n}.</div>`;
+
+        if (allowEmpty) {
+            let numStars = n;
+            let numBars = k - 1n;
+            let totalSymbols = numStars + numBars;
+            let result = combinations(totalSymbols, numBars);
+            
+            html += `<div class='step'><strong>Fundamento (Estrellas y Barras - Teorema 1):</strong> Al permitirse cajas vacías, buscamos soluciones enteras <em>no negativas</em>. Necesitamos organizar ${n} estrellas (objetos) y ${numBars} barras (separadores de las ${k} cajas). En total hay ${totalSymbols} posiciones.</div>`;
+            html += `<div class='step'><strong>Fórmula:</strong> C(n + k - 1, k - 1) = C(${n} + ${k} - 1, ${k} - 1) = C(${totalSymbols}, ${numBars})</div>`;
+            html += `<div class='step highlight'>Resultado Final: ${result} formas de distribución.</div>`;
+        } else {
+            if (n < k) {
+                html += `<div class='step' style='color: #ff5252;'><strong>Validación Lógica:</strong> Si se exige que ninguna caja esté vacía, debe haber al menos la misma cantidad de objetos que de cajas. Aquí tenemos ${n} objetos y ${k} cajas, por lo que es imposible cumplir la condición.</div>`;
+            } else {
+                let n_mod = n - 1n;
+                let k_mod = k - 1n;
+                let result = combinations(n_mod, k_mod);
+                
+                html += `<div class='step'><strong>Fundamento (Estrellas y Barras - Teorema 2):</strong> No se permiten cajas vacías, buscamos soluciones enteras <em>positivas</em>. Garantizamos esto poniendo primero 1 objeto en cada caja. Quedan ${n-k} objetos para distribuir con repetición en ${k} cajas, lo que simplifica la fórmula de las barras.</div>`;
+                html += `<div class='step'><strong>Fórmula:</strong> C(n - 1, k - 1) = C(${n} - 1, ${k} - 1) = C(${n_mod}, ${k_mod})</div>`;
+                html += `<div class='step highlight'>Resultado Final: ${result} formas de distribución.</div>`;
+            }
+        }
+        resDiv.innerHTML = html;
+    }
+
+    function solveProblem8() {
+        const a = BigInt(document.getElementById('p8-a').value);
+        const b = BigInt(document.getElementById('p8-b').value);
+        const resDiv = document.getElementById('res-p8');
+        
+        const bx_str = document.getElementById('p8-bx').value;
+        const by_str = document.getElementById('p8-by').value;
+
+        if (a < 0n || b < 0n) {
+            resDiv.innerHTML = "<span style='color: #ff5252;'>Error: Las coordenadas de destino deben ser números positivos o cero.</span>";
+            return;
+        }
+
+        let html = `<h3>Análisis Paso a Paso</h3>`;
+        let totalSteps = a + b;
+        let totalPaths = combinations(totalSteps, a);
+
+        html += `<div class='step'><strong>Modelo:</strong> Caminos en una grilla desde (0,0) hasta (${a},${b}), moviéndose solo Derecha(D) o Arriba(A).</div>`;
+        html += `<div class='step'><strong>Fundamento Principal:</strong> Cualquier camino válido debe tener exactamente ${a} movimientos 'D' y ${b} movimientos 'A'. La longitud total de cualquier camino mínimo es ${totalSteps} pasos. El problema se reduce a elegir en cuáles de los ${totalSteps} pasos nos moveremos a la derecha.</div>`;
+        html += `<div class='step'><strong>Cálculo de Caminos Totales:</strong> C(a+b, a) = C(${totalSteps}, ${a}) = ${totalPaths}.</div>`;
+
+        if (bx_str !== "" && by_str !== "") {
+            const bx = BigInt(bx_str);
+            const by = BigInt(by_str);
+
+            html += `<div class='step'><strong>Evaluación de Restricción:</strong> Existe un punto bloqueado en (${bx}, ${by}). Utilizaremos el principio de inclusión-exclusión (o resta lógica): Caminos Válidos = Caminos Totales - Caminos que pasan por el bloqueo.</div>`;
+
+            if (bx >= 0n && bx <= a && by >= 0n && by <= b) {
+                let pathsToBlock = combinations(bx + by, bx);
+                let stepsAfterX = a - bx;
+                let stepsAfterY = b - by;
+                let pathsFromBlock = combinations(stepsAfterX + stepsAfterY, stepsAfterX);
+                let invalidPaths = pathsToBlock * pathsFromBlock;
+                let validPaths = totalPaths - invalidPaths;
+
+                html += `<ul>`;
+                html += `<li><strong>Tramo 1 (Origen al Bloqueo):</strong> Caminos desde (0,0) hasta (${bx},${by}) = C(${bx+by}, ${bx}) = ${pathsToBlock}.</li>`;
+                html += `<li><strong>Tramo 2 (Bloqueo al Destino):</strong> Caminos desde (${bx},${by}) hasta (${a},${b}) = C(${stepsAfterX+stepsAfterY}, ${stepsAfterX}) = ${pathsFromBlock}.</li>`;
+                html += `<li><strong>Regla del Producto:</strong> Caminos totales que pasan por el bloqueo = ${pathsToBlock} * ${pathsFromBlock} = ${invalidPaths}.</li>`;
+                html += `</ul>`;
+                html += `<div class='step highlight'>Resultado Final: ${totalPaths} - ${invalidPaths} = ${validPaths} caminos válidos.</div>`;
+            } else {
+                html += `<div class='step' style='color: #4CAF50;'><strong>Aviso:</strong> El punto bloqueado (${bx}, ${by}) está fuera de las coordenadas necesarias para llegar a (${a}, ${b}). No afecta el conteo.</div>`;
+                html += `<div class='step highlight'>Resultado Final: ${totalPaths} caminos válidos.</div>`;
+            }
+        } else {
+             html += `<div class='step highlight'>Resultado Final: ${totalPaths} caminos posibles.</div>`;
+        }
+
+        resDiv.innerHTML = html;
+    }
+</script>
+</body>
+</html>
